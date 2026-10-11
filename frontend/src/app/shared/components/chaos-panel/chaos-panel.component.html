@@ -1,5 +1,5 @@
 <div class="chaos-drawer" [class.is-open]="isOpen()">
-  <div class="drawer-backdrop" (click)="toggleOpen()"></div>
+  <button type="button" class="drawer-backdrop" (click)="toggleOpen()" aria-label="Close chaos panel"></button>
 
   <div class="drawer-content" role="dialog" aria-modal="true" aria-label="Chaos Engineering and Failure Drills">
     <div class="drawer-header">

@@ -5,8 +5,14 @@ import { StreamService } from './stream.service';
 import { AuthService } from '../auth/auth.service';
 import { MetricEvent } from '../models/metric.model';
 
+interface StreamServiceInternal {
+  handleTransportFailure(error: unknown): void;
+  processIncomingMessage(rawMessage: string): void;
+}
+
 describe('Stream Resilience & Sequence Handling (Unit Test)', () => {
   let streamService: StreamService;
+  let internalService: StreamServiceInternal;
   let authServiceSpy: { getAccessToken: ReturnType<typeof vi.fn> };
   let httpSpy: { get: ReturnType<typeof vi.fn> };
 
@@ -28,6 +34,7 @@ describe('Stream Resilience & Sequence Handling (Unit Test)', () => {
     });
 
     streamService = TestBed.inject(StreamService);
+    internalService = streamService as unknown as StreamServiceInternal;
   });
 
   afterEach(() => {
@@ -38,20 +45,20 @@ describe('Stream Resilience & Sequence Handling (Unit Test)', () => {
     expect(streamService.currentTransport()).toBe('websocket');
 
     // Simulate 3 WS failures
-    (streamService as any).handleTransportFailure(new Error('WS Fail 1'));
+    internalService.handleTransportFailure(new Error('WS Fail 1'));
     expect(streamService.currentTransport()).toBe('websocket');
 
-    (streamService as any).handleTransportFailure(new Error('WS Fail 2'));
+    internalService.handleTransportFailure(new Error('WS Fail 2'));
     expect(streamService.currentTransport()).toBe('websocket');
 
-    (streamService as any).handleTransportFailure(new Error('WS Fail 3'));
+    internalService.handleTransportFailure(new Error('WS Fail 3'));
     // Fell back to SSE!
     expect(streamService.currentTransport()).toBe('sse');
 
     // Simulate 3 SSE failures
-    (streamService as any).handleTransportFailure(new Error('SSE Fail 1'));
-    (streamService as any).handleTransportFailure(new Error('SSE Fail 2'));
-    (streamService as any).handleTransportFailure(new Error('SSE Fail 3'));
+    internalService.handleTransportFailure(new Error('SSE Fail 1'));
+    internalService.handleTransportFailure(new Error('SSE Fail 2'));
+    internalService.handleTransportFailure(new Error('SSE Fail 3'));
     // Fell back to polling!
     expect(streamService.currentTransport()).toBe('polling');
   });
@@ -108,13 +115,13 @@ describe('Stream Resilience & Sequence Handling (Unit Test)', () => {
     };
 
     // Feed event 1
-    (streamService as any).processIncomingMessage(JSON.stringify(event1));
+    internalService.processIncomingMessage(JSON.stringify(event1));
     // Feed duplicate event 1
-    (streamService as any).processIncomingMessage(JSON.stringify(duplicateEvent1));
+    internalService.processIncomingMessage(JSON.stringify(duplicateEvent1));
     // Feed event 2 (offset 102)
-    (streamService as any).processIncomingMessage(JSON.stringify(event2OutOfOrder));
+    internalService.processIncomingMessage(JSON.stringify(event2OutOfOrder));
     // Feed event 3 (offset 101)
-    (streamService as any).processIncomingMessage(JSON.stringify(event3InOrder));
+    internalService.processIncomingMessage(JSON.stringify(event3InOrder));
 
     // Allow reorder buffer flush
     await new Promise(r => setTimeout(r, 120));
@@ -134,11 +141,11 @@ describe('Stream Resilience & Sequence Handling (Unit Test)', () => {
     expect(streamService.malformedEventCount()).toBe(0);
 
     // Feed malformed JSON
-    (streamService as any).processIncomingMessage('{ bad json: ...');
+    internalService.processIncomingMessage('{ bad json: ...');
     expect(streamService.malformedEventCount()).toBe(1);
 
     // Feed missing required fields
-    (streamService as any).processIncomingMessage(JSON.stringify({ type: 'metric', offset: 999 }));
+    internalService.processIncomingMessage(JSON.stringify({ type: 'metric', offset: 999 }));
     expect(streamService.malformedEventCount()).toBe(2);
   });
 });
