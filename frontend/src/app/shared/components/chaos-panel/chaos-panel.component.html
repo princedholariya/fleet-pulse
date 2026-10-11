@@ -1,0 +1,87 @@
+<div class="chaos-drawer" [class.is-open]="isOpen()">
+  <div class="drawer-backdrop" (click)="toggleOpen()"></div>
+
+  <div class="drawer-content" role="dialog" aria-modal="true" aria-label="Chaos Engineering and Failure Drills">
+    <div class="drawer-header">
+      <div class="header-title-group">
+        <span class="icon">⚡</span>
+        <h3 class="drawer-title">Chaos Engineering Drills</h3>
+      </div>
+      <button type="button" class="btn-close" (click)="toggleOpen()" aria-label="Close drawer">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Live Metrics Strip -->
+      <div class="telemetry-readout">
+        <div class="stat-pill">
+          <span class="stat-label">Transport</span>
+          <span class="stat-val font-mono">{{ streamService.currentTransport() | uppercase }}</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Corrupt Frames</span>
+          <span class="stat-val font-mono">{{ streamService.malformedEventCount() }}</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Gaps Replayed</span>
+          <span class="stat-val font-mono">{{ streamService.gapRecoveriesCount() }}</span>
+        </div>
+      </div>
+
+      <!-- Quick Drills Matrix -->
+      <h4 class="section-title">Failure Drills (from Brief)</h4>
+      <div class="drills-grid">
+        <button type="button" class="btn-drill" (click)="triggerDrill({ ws: 'down' })">
+          <span class="drill-name">Kill WebSocket</span>
+          <span class="drill-sub">Expected: Auto-fallback to SSE</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ ws: 'down', sse: 'down' })">
+          <span class="drill-name">Kill WS & SSE</span>
+          <span class="drill-sub">Expected: Falls to HTTP Polling</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ ws: 'silent' })">
+          <span class="drill-name">Half-Open Socket</span>
+          <span class="drill-sub">Expected: Heartbeat reconnect in 10s</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ chaos: 'shuffle,dupe' })">
+          <span class="drill-name">Shuffle & Duplicates</span>
+          <span class="drill-sub">Expected: In-order table & no dups</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ dropPct: 20 })">
+          <span class="drill-name">Drop 20% Events</span>
+          <span class="drill-sub">Expected: Gap detected & replayed</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ token_ttl: 5 })">
+          <span class="drill-name">Token Expiry Storm</span>
+          <span class="drill-sub">Expected: 1 refresh per storm</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ 'http=500': 50 })">
+          <span class="drill-name">Server Errors (50%)</span>
+          <span class="drill-sub">Expected: Retried within R3 rules</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ garbagePct: 5 })">
+          <span class="drill-name">Malformed Data (5%)</span>
+          <span class="drill-sub">Expected: No crash, counter ticks</span>
+        </button>
+
+        <button type="button" class="btn-drill" (click)="triggerDrill({ rate: 2000 })">
+          <span class="drill-name">Burst Rate (2000/s)</span>
+          <span class="drill-sub">Expected: Smooth 60 FPS rendering</span>
+        </button>
+      </div>
+
+      <div class="drawer-actions">
+        <button type="button" class="btn-reset-chaos" (click)="resetAllChaos()">
+          🔄 Reset All Chaos to Normal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

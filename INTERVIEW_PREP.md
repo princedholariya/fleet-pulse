@@ -100,3 +100,4 @@ In the 45-minute call, you will be asked to make **one live change**. Here are t
 - **Run Tests**: `cd frontend && npm test`
 - **Run Lint**: `cd frontend && npm run lint`
 - **Build**: `cd frontend && npm run build`
+

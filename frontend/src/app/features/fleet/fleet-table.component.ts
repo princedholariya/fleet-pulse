@@ -7,6 +7,7 @@ import { FleetService, EnrichedServiceItem } from '../../core/services/fleet.ser
 import { StreamService } from '../../core/stream/stream.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ConnectionBadgeComponent } from '../../shared/components/connection-badge/connection-badge.component';
+import { ChaosPanelComponent } from '../../shared/components/chaos-panel/chaos-panel.component';
 
 export type SortField = 'id' | 'name' | 'team' | 'status' | 'p95' | 'errRate' | 'rps';
 export type SortDirection = 'asc' | 'desc';
@@ -14,7 +15,7 @@ export type SortDirection = 'asc' | 'desc';
 @Component({
   selector: 'app-fleet-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScrollingModule, ConnectionBadgeComponent],
+  imports: [CommonModule, FormsModule, ScrollingModule, ConnectionBadgeComponent, ChaosPanelComponent],
   templateUrl: './fleet-table.component.html',
   styleUrls: ['./fleet-table.component.scss']
 })

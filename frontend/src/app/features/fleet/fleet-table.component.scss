@@ -99,6 +99,23 @@
       }
     }
 
+    .btn-chaos {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: rgba(245, 158, 11, 0.25);
+        border-color: #f59e0b;
+      }
+    }
+
     .btn-logout {
       background: transparent;
       border: 1px solid var(--border-subtle);

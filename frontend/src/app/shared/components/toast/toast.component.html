@@ -1,0 +1,28 @@
+<div class="toast-container" role="region" aria-label="Notifications" aria-live="polite">
+  @for (toast of notificationService.toasts(); track toast.id) {
+    <div
+      class="toast-card toast-{{ toast.type }}"
+      role="alert"
+    >
+      <div class="toast-icon">
+        @if (toast.type === 'critical') { 🚨 }
+        @else if (toast.type === 'warning') { ⚠️ }
+        @else if (toast.type === 'success') { ✓ }
+        @else { ℹ️ }
+      </div>
+      <div class="toast-content">
+        <h4 class="toast-title">{{ toast.title }}</h4>
+        <p class="toast-message">{{ toast.message }}</p>
+      </div>
+      <button
+        type="button"
+        class="btn-toast-close"
+        (click)="notificationService.dismiss(toast.id)"
+        aria-label="Close notification"
+      >
+        ✕
+      </button>
+    </div>
+  }
+</div>
+

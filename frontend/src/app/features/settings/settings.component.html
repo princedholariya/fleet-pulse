@@ -1,0 +1,115 @@
+<div class="settings-layout">
+  <div class="settings-card">
+    <header class="settings-header">
+      <div class="header-top">
+        <a routerLink="/" class="btn-back">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>Back to Fleet</span>
+        </a>
+        <span class="badge-form-style">Template-Driven Form</span>
+      </div>
+      <h1 class="settings-title">Console Settings</h1>
+      <p class="settings-subtitle">Manage client preferences and operational notification defaults.</p>
+    </header>
+
+    @if (savedNotification()) {
+      <div class="alert-success" role="alert">
+        ✓ Preferences saved successfully!
+      </div>
+    }
+
+    <!-- Template-Driven Form Demonstration -->
+    <form #settingsForm="ngForm" (ngSubmit)="onSaveSettings(settingsForm)" novalidate>
+      <div class="form-group">
+        <label for="theme" class="form-label">Theme Palette</label>
+        <select
+          id="theme"
+          name="themePreference"
+          [(ngModel)]="preferences.themePreference"
+          class="form-control"
+          required
+        >
+          <option value="dark">Dark Ops (Default)</option>
+          <option value="midnight">Midnight Black</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="historyMinutes" class="form-label">Default History Window (Minutes)</label>
+        <input
+          id="historyMinutes"
+          type="number"
+          name="defaultHistoryMinutes"
+          [(ngModel)]="preferences.defaultHistoryMinutes"
+          #histMin="ngModel"
+          class="form-control"
+          [class.is-invalid]="histMin.invalid && histMin.touched"
+          min="1"
+          max="60"
+          required
+        />
+        @if (histMin.invalid && histMin.touched) {
+          <div class="invalid-feedback">
+            Please enter a window duration between 1 and 60 minutes.
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="maxIncidents" class="form-label">Max Incident Stream Buffer</label>
+        <input
+          id="maxIncidents"
+          type="number"
+          name="maxIncidentsRetention"
+          [(ngModel)]="preferences.maxIncidentsRetention"
+          #maxInc="ngModel"
+          class="form-control"
+          [class.is-invalid]="maxInc.invalid && maxInc.touched"
+          min="10"
+          max="500"
+          required
+        />
+        @if (maxInc.invalid && maxInc.touched) {
+          <div class="invalid-feedback">
+            Retention must be between 10 and 500 incidents.
+          </div>
+        }
+      </div>
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            name="enableSoundAlerts"
+            [(ngModel)]="preferences.enableSoundAlerts"
+          />
+          <span>Enable audio chirp when critical incidents fire</span>
+        </label>
+      </div>
+
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            name="highContrastMode"
+            [(ngModel)]="preferences.highContrastMode"
+          />
+          <span>High-contrast grid borders for sunlight view</span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-save"
+          [disabled]="settingsForm.invalid"
+        >
+          Save Preferences
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
