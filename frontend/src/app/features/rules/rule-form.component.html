@@ -1,0 +1,158 @@
+<div class="rule-form-layout">
+  <div class="form-card">
+    <header class="card-header">
+      <h1 class="form-title">{{ ruleId() ? 'Edit Alert Rule' : 'Create New Alert Rule' }}</h1>
+      <p class="form-subtitle">Define conditions evaluated live in-browser against streaming metrics.</p>
+    </header>
+
+    @if (errorMessage()) {
+      <div class="alert-error" role="alert">
+        <span>⚠️ {{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="ruleForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Rule Name Input -->
+      <div class="form-group">
+        <label for="rule-name" class="form-label">Rule Name</label>
+        <input
+          id="rule-name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          [class.is-invalid]="ruleForm.get('name')?.invalid && ruleForm.get('name')?.touched"
+          placeholder="e.g., High P95 Checkout Latency"
+          required
+        />
+        @if (ruleForm.get('name')?.invalid && ruleForm.get('name')?.touched) {
+          <div class="invalid-feedback">
+            @if (ruleForm.get('name')?.errors?.['required']) {
+              Rule name is required.
+            } @else if (ruleForm.get('name')?.errors?.['minlength']) {
+              Rule name must be at least 3 characters.
+            } @else if (ruleForm.get('name')?.errors?.['nameTaken']) {
+              A rule with this name already exists. Choose a unique name.
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Conditions Form Array -->
+      <div class="conditions-section">
+        <div class="section-header">
+          <h2 class="section-title">Trigger Conditions</h2>
+          <button type="button" class="btn-add-condition" (click)="addCondition()">
+            + Add Condition
+          </button>
+        </div>
+
+        <div formArrayName="conditions" class="conditions-list">
+          @for (cond of conditionsArray.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="condition-card">
+              <div class="condition-header">
+                <span class="condition-index">Condition #{{ i + 1 }}</span>
+                @if (conditionsArray.length > 1) {
+                  <button type="button" class="btn-remove" (click)="removeCondition(i)" aria-label="Remove condition">
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="condition-fields">
+                <!-- Metric Selector -->
+                <div class="field-item">
+                  <label [for]="'metric-' + i" class="field-label">Metric</label>
+                  <select [id]="'metric-' + i" formControlName="metric" class="form-control">
+                    <option value="p95">p95 Latency (ms)</option>
+                    <option value="errRate">Error Rate (%)</option>
+                    <option value="rps">Throughput (rps)</option>
+                  </select>
+                </div>
+
+                <!-- Operator Selector -->
+                <div class="field-item">
+                  <label [for]="'operator-' + i" class="field-label">Operator</label>
+                  <select [id]="'operator-' + i" formControlName="operator" class="form-control">
+                    <option value=">">&gt; (Greater than)</option>
+                    <option value=">=">&gt;= (Greater or equal)</option>
+                    <option value="<">&lt; (Less than)</option>
+                    <option value="<=">&lt;= (Less or equal)</option>
+                  </select>
+                </div>
+
+                <!-- Critical Threshold -->
+                <div class="field-item">
+                  <label [for]="'threshold-' + i" class="field-label">
+                    Critical Threshold
+                    @if (cond.get('metric')?.value === 'errRate') { (%) }
+                    @else if (cond.get('metric')?.value === 'p95') { (ms) }
+                    @else { (rps) }
+                  </label>
+                  <input
+                    [id]="'threshold-' + i"
+                    type="number"
+                    formControlName="threshold"
+                    class="form-control"
+                    placeholder="e.g. 500"
+                    required
+                  />
+                </div>
+
+                <!-- Warning Threshold (Cross-Field Validator Test) -->
+                <div class="field-item">
+                  <label [for]="'warning-' + i" class="field-label">
+                    Warning Threshold (Optional)
+                  </label>
+                  <input
+                    [id]="'warning-' + i"
+                    type="number"
+                    formControlName="warningThreshold"
+                    class="form-control"
+                    placeholder="Must be lower than critical"
+                  />
+                </div>
+
+                <!-- Duration (Sec) -->
+                <div class="field-item">
+                  <label [for]="'duration-' + i" class="field-label">Duration (sec)</label>
+                  <input
+                    [id]="'duration-' + i"
+                    type="number"
+                    formControlName="durationSec"
+                    class="form-control"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Condition Level Validation Feedback -->
+              @if (cond.errors?.['warningMustBeLower']) {
+                <div class="invalid-feedback condition-error">
+                  Cross-field error: Warning threshold ({{ cond.errors?.['warningMustBeLower']?.warning }}) must be strictly lower than critical threshold ({{ cond.errors?.['warningMustBeLower']?.critical }}).
+                </div>
+              }
+              @if (cond.errors?.['percentageRange']) {
+                <div class="invalid-feedback condition-error">
+                  Error rate must be a valid percentage between 0 and 100%.
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/rules" class="btn-cancel">Cancel</a>
+        <button type="submit" class="btn-save" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span>Saving Rule...</span>
+          } @else {
+            <span>{{ ruleId() ? 'Update Rule' : 'Save Rule' }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
