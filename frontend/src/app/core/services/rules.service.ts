@@ -5,6 +5,7 @@ import { APP_CONFIG } from '../config/app.config.constants';
 import { AlertRule, IncidentAlert, RuleCondition } from '../models/rule.model';
 import { MetricEvent } from '../models/metric.model';
 import { StreamService } from '../stream/stream.service';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ import { StreamService } from '../stream/stream.service';
 export class RulesService {
   private readonly http = inject(HttpClient);
   private readonly streamService = inject(StreamService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   // Reactive State Signals
@@ -132,6 +134,13 @@ export class RulesService {
             };
 
             this.incidents.update(list => [incident, ...list].slice(0, 50));
+
+            // Raise notification alert (Requirement D.8)
+            this.notificationService.show(
+              `Alert: ${rule.name}`,
+              `Threshold violation on ${metric.serviceId} (${cond.metric}: ${incident.currentValue})`,
+              'critical'
+            );
           }
         }
       }

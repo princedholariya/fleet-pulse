@@ -1,0 +1,22 @@
+<div
+  class="connection-badge"
+  [ngClass]="badgeClass"
+  role="status"
+  aria-live="polite"
+  [attr.aria-label]="'Connection status: ' + streamService.statusLabel()"
+>
+  <span class="indicator-dot" aria-hidden="true"></span>
+  <span class="status-text">{{ streamService.statusLabel() }}</span>
+
+  @if (streamService.malformedEventCount() > 0) {
+    <span class="metric-pill" title="Malformed frames dropped cleanly">
+      Corrupt: {{ streamService.malformedEventCount() }}
+    </span>
+  }
+  @if (streamService.gapRecoveriesCount() > 0) {
+    <span class="metric-pill" title="Gaps filled via replay">
+      Replays: {{ streamService.gapRecoveriesCount() }}
+    </span>
+  }
+</div>
+

@@ -321,3 +321,4 @@ We implemented the **LTTB algorithm** (`src/app/core/utils/lttb.ts`):
 - **Verification & Understanding**:
   - Every architectural choice (Signals, RAF batching, LTTB downsampling, TokenRefreshCoordinator mutex) was reviewed, verified, and benchmarked.
   - All 21 unit tests and linters pass cleanly and can be explained and changed live during the follow-up review.
+

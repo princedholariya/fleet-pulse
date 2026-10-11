@@ -33,6 +33,7 @@ export class StreamService {
   readonly isBrowserOffline = signal<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
   readonly lastEventTime = signal<number>(Date.now());
   readonly isStale = signal<boolean>(false);
+  readonly tickerSec = signal<number>(0);
   readonly malformedEventCount = signal<number>(0);
   readonly gapRecoveriesCount = signal<number>(0);
 
@@ -49,7 +50,8 @@ export class StreamService {
     }
 
     if (this.isStale()) {
-      const elapsed = Math.round((Date.now() - this.lastEventTime()) / 1000);
+      this.tickerSec(); // Reactive subscription to 1s tick
+      const elapsed = Math.max(10, Math.round((Date.now() - this.lastEventTime()) / 1000));
       return `Stale: last event ${elapsed} s ago`;
     }
 
@@ -406,6 +408,7 @@ export class StreamService {
   // Stale Data Checker (Data older than 10s marked stale)
   private startStaleChecker(): void {
     this.staleCheckTimer = setInterval(() => {
+      this.tickerSec.update(t => t + 1);
       const elapsed = Date.now() - this.lastEventTime();
       if (elapsed > APP_CONFIG.stream.staleDataThresholdMs) {
         this.isStale.set(true);

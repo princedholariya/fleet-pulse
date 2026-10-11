@@ -30,6 +30,10 @@
 
         <a routerLink="/settings" class="nav-link">Settings</a>
 
+        <button type="button" class="btn-chaos" (click)="chaosDrawer.toggleOpen()" aria-label="Open chaos drills">
+          ⚡ Chaos Drills
+        </button>
+
         <button type="button" class="btn-logout" (click)="logout()" aria-label="Sign out">
           Sign Out
         </button>
@@ -161,5 +165,7 @@
       </cdk-virtual-scroll-viewport>
     </div>
   </main>
+
+  <app-chaos-panel #chaosDrawer></app-chaos-panel>
 </div>
 
