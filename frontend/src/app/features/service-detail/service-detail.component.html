@@ -1,0 +1,88 @@
+<div class="service-detail-layout">
+  <!-- Header Bar -->
+  <header class="detail-header" role="banner">
+    <div class="header-left">
+      <button type="button" class="btn-back" (click)="goBack()" aria-label="Back to fleet dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Back to Fleet</span>
+      </button>
+
+      <div class="service-titles">
+        <h1 class="service-name">{{ serviceInfo()?.name || serviceId() }}</h1>
+        <div class="meta-row">
+          <span class="service-id font-mono">{{ serviceId() }}</span>
+          <span class="meta-dot">•</span>
+          <span class="service-team">{{ serviceInfo()?.team || 'platform' }} team</span>
+          <span class="meta-dot">•</span>
+          @if (serviceInfo(); as s) {
+            <span class="status-pill status-{{ s.status }}">{{ s.status }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <app-connection-badge></app-connection-badge>
+
+      <!-- Time Range Selector -->
+      <div class="range-selector" role="group" aria-label="Select history duration">
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="selectedMinutes() === 5"
+          (click)="changeTimeRange(5)"
+        >
+          5m
+        </button>
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="selectedMinutes() === 15"
+          (click)="changeTimeRange(15)"
+        >
+          15m
+        </button>
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="selectedMinutes() === 60"
+          (click)="changeTimeRange(60)"
+        >
+          60m
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Charts Grid Area -->
+  <main class="detail-body" role="main">
+    <div class="charts-grid">
+      <!-- p95 Latency Chart -->
+      <app-live-chart
+        title="p95 Latency"
+        unit="ms"
+        strokeColor="#38bdf8"
+        [data]="p95ChartPoints()"
+      ></app-live-chart>
+
+      <!-- Error Rate Chart -->
+      <app-live-chart
+        title="Error Rate"
+        unit="%"
+        strokeColor="#f43f5e"
+        [data]="errRateChartPoints()"
+      ></app-live-chart>
+
+      <!-- Throughput Chart -->
+      <app-live-chart
+        title="Throughput"
+        unit="rps"
+        strokeColor="#10b981"
+        [data]="rpsChartPoints()"
+      ></app-live-chart>
+    </div>
+  </main>
+</div>
+

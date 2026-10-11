@@ -1,0 +1,218 @@
+.rule-form-layout {
+  min-height: 100vh;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 860px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  margin-bottom: 2rem;
+
+  .form-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .form-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+  }
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label, .field-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  margin-bottom: 0.4rem;
+}
+
+.form-control {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.85rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.15s ease;
+
+  &:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+
+  &.is-invalid {
+    border-color: #ef4444;
+  }
+}
+
+.invalid-feedback {
+  color: #f87171;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+
+  &.condition-error {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #ef4444;
+  }
+}
+
+.conditions-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .btn-add-condition {
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(2, 132, 199, 0.4);
+      color: #38bdf8;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: rgba(2, 132, 199, 0.3);
+      }
+    }
+  }
+
+  .conditions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .condition-card {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 1.25rem;
+
+    .condition-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+
+      .condition-index {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .btn-remove {
+        background: transparent;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.85rem;
+
+        &:hover {
+          color: #f87171;
+        }
+      }
+    }
+
+    .condition-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.85rem;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+
+  .btn-cancel {
+    padding: 0.65rem 1.25rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .btn-save {
+    padding: 0.65rem 1.5rem;
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: #0ea5e9;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+

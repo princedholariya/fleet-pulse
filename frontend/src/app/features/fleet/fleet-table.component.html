@@ -1,0 +1,165 @@
+<div class="dashboard-layout">
+  <!-- Top Navigation Bar -->
+  <header class="navbar" role="banner">
+    <div class="nav-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      </div>
+      <span class="brand-text">Fleet Pulse</span>
+      <span class="tag-version">2,000 Services</span>
+    </div>
+
+    <div class="nav-center">
+      <app-connection-badge></app-connection-badge>
+    </div>
+
+    <div class="nav-actions">
+      @if (authService.currentUser(); as user) {
+        <div class="user-pill" [title]="'Logged in as ' + user.email + ' (' + user.role + ')'">
+          <span class="user-avatar">{{ user.email[0].toUpperCase() }}</span>
+          <span class="user-role badge-{{ user.role }}">{{ user.role }}</span>
+        </div>
+
+        @if (user.role === 'operator') {
+          <a routerLink="/rules" class="nav-link">
+            <span>Alert Rules</span>
+          </a>
+        }
+
+        <a routerLink="/settings" class="nav-link">Settings</a>
+
+        <button type="button" class="btn-logout" (click)="logout()" aria-label="Sign out">
+          Sign Out
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-content" role="main">
+    <!-- Quick Status Cards -->
+    <section class="metrics-overview" aria-label="Fleet health statistics">
+      <div class="metric-card">
+        <span class="card-label">Total Services</span>
+        <span class="card-value">{{ stats().total }}</span>
+      </div>
+      <div class="metric-card healthy">
+        <span class="card-label">Healthy</span>
+        <span class="card-value">{{ stats().healthy }}</span>
+      </div>
+      <div class="metric-card degraded">
+        <span class="card-label">Degraded</span>
+        <span class="card-value">{{ stats().degraded }}</span>
+      </div>
+      <div class="metric-card down">
+        <span class="card-label">Down</span>
+        <span class="card-value">{{ stats().down }}</span>
+      </div>
+    </section>
+
+    <!-- Toolbar Filters -->
+    <section class="controls-toolbar" aria-label="Table controls">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="search"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Filter by service name, ID, or team..."
+          class="search-input"
+          aria-label="Search microservices"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="status-filter" class="filter-label">Status:</label>
+        <select
+          id="status-filter"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="statusFilter.set($event)"
+          class="status-select"
+        >
+          <option value="all">All Statuses</option>
+          <option value="healthy">Healthy Only</option>
+          <option value="degraded">Degraded Only</option>
+          <option value="down">Down Only</option>
+        </select>
+      </div>
+
+      <div class="results-count" aria-live="polite">
+        Showing {{ displayedServices().length }} of {{ stats().total }} services
+      </div>
+    </section>
+
+    <!-- Virtual Scrolled Table -->
+    <div class="table-container" [class.is-stale]="streamService.isStale()">
+      @if (streamService.isStale()) {
+        <div class="stale-banner" role="alert">
+          ⚠️ Data on screen is older than 10 seconds. Numbers are paused and marked stale.
+        </div>
+      }
+
+      <div class="table-header-row" role="row">
+        <button type="button" class="th col-id" (click)="setSort('id')">
+          ID <span class="sort-icon">{{ sortField() === 'id' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-name" (click)="setSort('name')">
+          Service Name <span class="sort-icon">{{ sortField() === 'name' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-team" (click)="setSort('team')">
+          Team <span class="sort-icon">{{ sortField() === 'team' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-status" (click)="setSort('status')">
+          Status <span class="sort-icon">{{ sortField() === 'status' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-num" (click)="setSort('p95')">
+          p95 Latency <span class="sort-icon">{{ sortField() === 'p95' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-num" (click)="setSort('errRate')">
+          Error Rate <span class="sort-icon">{{ sortField() === 'errRate' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+        <button type="button" class="th col-num" (click)="setSort('rps')">
+          Throughput (rps) <span class="sort-icon">{{ sortField() === 'rps' ? (sortDirection() === 'asc' ? '▲' : '▼') : '' }}</span>
+        </button>
+      </div>
+
+      <cdk-virtual-scroll-viewport itemSize="48" class="virtual-viewport">
+        <div
+          *cdkVirtualFor="let svc of displayedServices(); trackBy: trackById"
+          class="table-data-row"
+          [class.has-flash]="svc.statusFlash"
+          (click)="openService(svc.id)"
+          tabindex="0"
+          (keydown.enter)="openService(svc.id)"
+          role="row"
+          [attr.aria-label]="svc.name + ' status ' + svc.status"
+        >
+          <div class="td col-id">{{ svc.id }}</div>
+          <div class="td col-name font-semibold">{{ svc.name }}</div>
+          <div class="td col-team text-muted">{{ svc.team }}</div>
+          <div
+            class="td col-status"
+            [class.flash-healthy]="svc.statusFlash === 'healthy'"
+            [class.flash-degraded]="svc.statusFlash === 'degraded'"
+            [class.flash-down]="svc.statusFlash === 'down'"
+          >
+            <span class="status-pill status-{{ svc.status }}">
+              {{ svc.status }}
+            </span>
+          </div>
+          <div class="td col-num font-mono">{{ svc.p95 }} ms</div>
+          <div class="td col-num font-mono" [class.text-danger]="svc.errRate > 5">
+            {{ svc.errRate | number:'1.2-2' }}%
+          </div>
+          <div class="td col-num font-mono">{{ svc.rps | number }}</div>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+  </main>
+</div>
+
