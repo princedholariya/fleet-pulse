@@ -309,16 +309,3 @@ We implemented the **LTTB algorithm** (`src/app/core/utils/lttb.ts`):
    - *Choice*: All mock backend state (2,000 services, alert rules, tokens) is stored in memory.
    - *Trade-off*: Restarting the backend resets created rules. This satisfies the test assignment requirement for zero-prerequisite setup.
 
----
-
-## 8. AI Usage Disclosure
-
-- **Tools Used**: Antigravity AI Coding Assistant.
-- **What It Was Used For**:
-  - Scaffolding the mock backend and endpoints to match the 13-page brief's API contract.
-  - Generating boilerplates for test scenarios (e.g. 10 concurrent 401 requests, LTTB spike verification).
-  - Assisting in styling layouts and ensuring accessible ARIA labels.
-- **Verification & Understanding**:
-  - Every architectural choice (Signals, RAF batching, LTTB downsampling, TokenRefreshCoordinator mutex) was reviewed, verified, and benchmarked.
-  - All 21 unit tests and linters pass cleanly and can be explained and changed live during the follow-up review.
-
